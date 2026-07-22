@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface Rol {
   id: number;
@@ -53,10 +54,10 @@ export default function AdminUsuariosPage() {
   const cargarDatos = async () => {
     setCargando(true);
     try {
-      const resUsers = await fetch('http://localhost:4000/api/usuarios');
+      const resUsers = await apiFetch('/api/usuarios');
       if (resUsers.ok) setUsuarios(await resUsers.json());
 
-      const resRoles = await fetch('http://localhost:4000/api/usuarios/roles');
+      const resRoles = await apiFetch('/api/usuarios/roles');
       if (resRoles.ok) {
         const rolesData: Rol[] = await resRoles.json();
         setRoles(rolesData);
@@ -85,7 +86,7 @@ export default function AdminUsuariosPage() {
 
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/usuarios', {
+      const res = await apiFetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,7 +123,7 @@ export default function AdminUsuariosPage() {
     e.preventDefault();
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/usuarios/roles', {
+      const res = await apiFetch('/api/usuarios/roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

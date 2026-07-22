@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/AuthContext';
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('admin@coorsa.com');
   const [password, setPassword] = useState('Coorsa#2026!');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +18,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('http://localhost:4000/api/usuarios/login', {
+      const res = await fetch(`${API_BASE}/api/usuarios/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -24,9 +26,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem('wms_user', JSON.stringify(data.usuario));
-        localStorage.setItem('wms_token', data.token);
-        router.push('/');
+        login(data.token, data.usuario);
       } else {
         const errJson = await res.json();
         setError(errJson.message || 'Credenciales inválidas. Intente nuevamente.');

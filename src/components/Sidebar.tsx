@@ -1,38 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/components/AuthContext';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { user, logout } = useAuth();
 
-  const [usuarioActual, setUsuarioActual] = useState<{
-    nombreCompleto: string;
-    email: string;
-    rol: string;
-  }>({
-    nombreCompleto: 'Administrador General',
-    email: 'admin@coorsa.com',
-    rol: 'Administrador WMS',
-  });
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('wms_user');
-    if (savedUser) {
-      try {
-        setUsuarioActual(JSON.parse(savedUser));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
+  const usuarioActual = user || {
+    nombreCompleto: 'Usuario WMS',
+    email: 'usuario@coorsa.com',
+    rol: 'Operador',
+  };
 
   const handleCerrarSesion = () => {
-    localStorage.removeItem('wms_user');
-    localStorage.removeItem('wms_token');
-    router.push('/login');
+    logout();
   };
 
   // No mostrar el Sidebar en la página de login
