@@ -29,9 +29,11 @@ steps:
       - '--region=us-central1'
       - '--platform=managed'
       - '--allow-unauthenticated'
+      - '--port=3000'
+      - '--set-env-vars=NODE_ENV=production,NEXT_PUBLIC_API_URL=$_BACKEND_URL'
 
 substitutions:
-  _BACKEND_URL: ''
+  _BACKEND_URL: 'https://wms-backend-401457559403.us-central1.run.app'
 
 images:
   - 'gcr.io/$PROJECT_ID/wms-frontend:$COMMIT_SHA'
