@@ -1,0 +1,38 @@
+steps:
+  # 1. Build Frontend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=$_BACKEND_URL'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/wms-frontend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/wms-frontend:latest'
+      - '.'
+
+  # 2. Push image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/wms-frontend:$COMMIT_SHA']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/wms-frontend:latest']
+
+  # 3. Deploy Frontend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'wms-frontend'
+      - '--image=gcr.io/$PROJECT_ID/wms-frontend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+substitutions:
+  _BACKEND_URL: ''
+
+images:
+  - 'gcr.io/$PROJECT_ID/wms-frontend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/wms-frontend:latest'
