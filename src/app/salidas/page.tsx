@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface TarimaDisponible {
   id: number;
@@ -40,10 +41,10 @@ export default function SalidasPage() {
   const cargarSalidas = async () => {
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/salidas');
+      const res = await apiFetch('/api/salidas');
       if (res.ok) setSalidas(await res.json());
 
-      const resTarimas = await fetch('http://localhost:4000/api/salidas/tarimas-disponibles');
+      const resTarimas = await apiFetch('/api/salidas/tarimas-disponibles');
       if (resTarimas.ok) setTarimasDisponibles(await resTarimas.json());
     } catch (err) {
       console.log('Error cargando salidas:', err);
@@ -98,7 +99,7 @@ export default function SalidasPage() {
     e.preventDefault();
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/salidas', {
+      const res = await apiFetch('/api/salidas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -153,7 +154,7 @@ export default function SalidasPage() {
 
     setCargando(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/salidas/${salidaActiva.id}/despachar`, {
+      const res = await apiFetch(`/api/salidas/${salidaActiva.id}/despachar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

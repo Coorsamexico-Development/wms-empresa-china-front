@@ -1,10 +1,18 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+export function getApiUrl(endpoint: string): string {
+  if (endpoint.startsWith('http')) return endpoint;
+  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  return `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+}
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('wms_token') : null;
 
+  const isFormData = options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string>),
   };
 
@@ -12,7 +20,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
   const response = await fetch(url, {
     ...options,
@@ -29,3 +37,4 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
   return response;
 }
+

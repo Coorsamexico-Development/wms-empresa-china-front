@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch, getApiUrl } from '@/lib/apiFetch';
 
 interface Atributo {
   id: number;
@@ -70,13 +71,13 @@ export default function UnidadesPage() {
   const cargarUnidades = async () => {
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/inbound/recepciones');
+      const res = await apiFetch('/api/inbound/recepciones');
       if (res.ok) setUnidades(await res.json());
 
-      const resAttr = await fetch('http://localhost:4000/api/inbound/atributos');
+      const resAttr = await apiFetch('/api/inbound/atributos');
       if (resAttr.ok) setAtributosCatalogo(await resAttr.json());
 
-      const resMat = await fetch('http://localhost:4000/api/materiales');
+      const resMat = await apiFetch('/api/materiales');
       if (resMat.ok) {
         const matData = await resMat.json();
         setCatalogoMateriales(matData);
@@ -149,7 +150,7 @@ export default function UnidadesPage() {
     }));
 
     try {
-      const res = await fetch('http://localhost:4000/api/inbound/recepciones', {
+      const res = await apiFetch('/api/inbound/recepciones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ creadoPor: 1, atributos: payloadAtributos }),
@@ -158,7 +159,7 @@ export default function UnidadesPage() {
       if (res.ok) {
         const nuevaUnidad = await res.json();
         for (const fotoUrl of fotosUnidad) {
-          await fetch(`http://localhost:4000/api/inbound/recepciones/${nuevaUnidad.id}/evidencias`, {
+          await apiFetch(`/api/inbound/recepciones/${nuevaUnidad.id}/evidencias`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tipoEvidenciaId: 1, urlArchivo: fotoUrl, subidoPor: 1 }),
@@ -181,7 +182,7 @@ export default function UnidadesPage() {
   const handleAbrirPaletizado = async (unidad: UnidadRecepcion) => {
     setUnidadPaletizar(unidad);
     try {
-      const res = await fetch(`http://localhost:4000/api/paletizado/recepcion/${unidad.id}`);
+      const res = await apiFetch(`/api/paletizado/recepcion/${unidad.id}`);
       if (res.ok) {
         const list: Tarima[] = await res.json();
         setTarimasUnidad(list);
@@ -196,7 +197,7 @@ export default function UnidadesPage() {
     if (!unidadPaletizar) return;
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/paletizado/tarimas', {
+      const res = await apiFetch('/api/paletizado/tarimas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recepcionId: unidadPaletizar.id, armadoPor: 1 }),
@@ -220,7 +221,7 @@ export default function UnidadesPage() {
     }
     setCargando(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/paletizado/tarimas/${tarimaId}`, {
+      const res = await apiFetch(`/api/paletizado/tarimas/${tarimaId}`, {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -241,7 +242,7 @@ export default function UnidadesPage() {
     if (!unidadPaletizar) return;
     setCargando(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/inbound/recepciones/${unidadPaletizar.id}/cerrar`, {
+      const res = await apiFetch(`/api/inbound/recepciones/${unidadPaletizar.id}/cerrar`, {
         method: 'POST',
       });
 
@@ -264,7 +265,7 @@ export default function UnidadesPage() {
   // Abrir Modal Secundario para un Pallet Existente
   const handleAbrirDetallePallet = async (tarima: Tarima) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/paletizado/tarimas/${tarima.id}`);
+      const res = await apiFetch(`/api/paletizado/tarimas/${tarima.id}`);
       if (res.ok) {
         setPalletEditar(await res.json());
       } else {
@@ -289,7 +290,7 @@ export default function UnidadesPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/paletizado/tarimas/${palletEditar.id}/detalles`, {
+      const res = await apiFetch(`/api/paletizado/tarimas/${palletEditar.id}/detalles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -300,7 +301,7 @@ export default function UnidadesPage() {
       });
 
       if (res.ok) {
-        const resT = await fetch(`http://localhost:4000/api/paletizado/tarimas/${palletEditar.id}`);
+        const resT = await apiFetch(`/api/paletizado/tarimas/${palletEditar.id}`);
         if (resT.ok) setPalletEditar(await resT.json());
         if (unidadPaletizar) await handleAbrirPaletizado(unidadPaletizar);
       } else {
@@ -316,8 +317,8 @@ export default function UnidadesPage() {
   const handleEliminarDetallePallet = async (detalleId: number) => {
     if (!palletEditar) return;
     try {
-      await fetch(`http://localhost:4000/api/paletizado/detalles/${detalleId}`, { method: 'DELETE' });
-      const resT = await fetch(`http://localhost:4000/api/paletizado/tarimas/${palletEditar.id}`);
+      await apiFetch(`/api/paletizado/detalles/${detalleId}`, { method: 'DELETE' });
+      const resT = await apiFetch(`/api/paletizado/tarimas/${palletEditar.id}`);
       if (resT.ok) setPalletEditar(await resT.json());
       if (unidadPaletizar) await handleAbrirPaletizado(unidadPaletizar);
     } catch (err) {
@@ -335,7 +336,7 @@ export default function UnidadesPage() {
 
     setCargando(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/paletizado/tarimas/${palletEditar.id}/cierre`, {
+      const res = await apiFetch(`/api/paletizado/tarimas/${palletEditar.id}/cierre`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ urlFotografia: fotoPallet, cerradoPor: 1 }),
@@ -346,7 +347,7 @@ export default function UnidadesPage() {
         setFotoPallet(null);
         setPalletEditar(null);
 
-        const resZpl = await fetch(`http://localhost:4000/api/paletizado/tarimas/${cerrada.id}/etiqueta/zpl`);
+        const resZpl = await apiFetch(`/api/paletizado/tarimas/${cerrada.id}/etiqueta/zpl`);
         if (resZpl.ok) {
           const zplData = await resZpl.json();
           setModalEtiqueta({ lpn: cerrada.lpnCodigo, zpl: zplData.zpl, tarimaId: cerrada.id });
@@ -634,7 +635,7 @@ export default function UnidadesPage() {
                                   </button>
 
                                   <a
-                                    href={`http://localhost:4000/api/paletizado/tarimas/${t.id}/etiqueta/pdf`}
+                                    href={getApiUrl(`/api/paletizado/tarimas/${t.id}/etiqueta/pdf`)}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1"
@@ -645,7 +646,7 @@ export default function UnidadesPage() {
                                   <button
                                     onClick={async () => {
                                       try {
-                                        const resZpl = await fetch(`http://localhost:4000/api/paletizado/tarimas/${t.id}/etiqueta/zpl`);
+                                        const resZpl = await apiFetch(`/api/paletizado/tarimas/${t.id}/etiqueta/zpl`);
                                         if (resZpl.ok) {
                                           const zData = await resZpl.json();
                                           await navigator.clipboard.writeText(zData.zpl);
@@ -771,7 +772,7 @@ export default function UnidadesPage() {
                   </div>
                   <div className="flex gap-2">
                     <a
-                      href={`http://localhost:4000/api/paletizado/tarimas/${palletEditar.id}/etiqueta/pdf`}
+                      href={getApiUrl(`/api/paletizado/tarimas/${palletEditar.id}/etiqueta/pdf`)}
                       target="_blank"
                       rel="noreferrer"
                       className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl"
@@ -862,7 +863,7 @@ export default function UnidadesPage() {
 
             <div className="space-y-2">
               <a
-                href={`http://localhost:4000/api/paletizado/tarimas/${modalEtiqueta.tarimaId}/etiqueta/pdf`}
+                href={getApiUrl(`/api/paletizado/tarimas/${modalEtiqueta.tarimaId}/etiqueta/pdf`)}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"

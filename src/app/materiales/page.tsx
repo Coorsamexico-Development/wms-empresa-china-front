@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import MaterialImportModal from '@/components/MaterialImportModal';
 import PhotoLightboxModal from '@/components/PhotoLightboxModal';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface MaterialSKU {
   id: number;
@@ -44,7 +45,7 @@ export default function MaestroMaterialesPage() {
   const cargarMateriales = async () => {
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/materiales');
+      const res = await apiFetch('/api/materiales');
       if (res.ok) setMateriales(await res.json());
     } catch (err) {
       console.log('Error cargando materiales:', err);
@@ -61,7 +62,7 @@ export default function MaestroMaterialesPage() {
     e.preventDefault();
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/materiales', {
+      const res = await apiFetch('/api/materiales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sku, descripcion }),
@@ -83,7 +84,7 @@ export default function MaestroMaterialesPage() {
 
   const abrirHistorial = async (m: MaterialSKU, tipo: 'entradas' | 'salidas' | 'disponible') => {
     try {
-      const res = await fetch(`http://localhost:4000/api/materiales/${m.id}/historial`);
+      const res = await apiFetch(`/api/materiales/${m.id}/historial`);
       if (res.ok) {
         const historial: HistorialSKU = await res.json();
         setModalHistorial({ material: m, tipo, historial });

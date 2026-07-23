@@ -14,6 +14,8 @@ interface EventoAuditoria {
   fotos: string[];
 }
 
+import { apiFetch } from '@/lib/apiFetch';
+
 export default function VisorTrazabilidadPage() {
   const [eventos, setEventos] = useState<EventoAuditoria[]>([]);
   const [cargando, setCargando] = useState(false);
@@ -26,7 +28,7 @@ export default function VisorTrazabilidadPage() {
   const cargarEventos = async () => {
     setCargando(true);
     try {
-      const res = await fetch('http://localhost:4000/api/dashboard/trazabilidad');
+      const res = await apiFetch('/api/dashboard/trazabilidad');
       if (res.ok) {
         setEventos(await res.json());
       }

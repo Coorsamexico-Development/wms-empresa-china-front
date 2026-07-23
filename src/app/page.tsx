@@ -29,6 +29,8 @@ interface DashboardKpis {
   historicoMensual: HistoricoMes[];
 }
 
+import { apiFetch } from '@/lib/apiFetch';
+
 export default function DashboardHome() {
   const [kpis, setKpis] = useState<DashboardKpis | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -39,10 +41,10 @@ export default function DashboardHome() {
   const cargarKpis = async (mesKey?: string) => {
     setCargando(true);
     try {
-      const url = mesKey
-        ? `http://localhost:4000/api/dashboard/kpis?mes=${mesKey}`
-        : 'http://localhost:4000/api/dashboard/kpis';
-      const res = await fetch(url);
+      const endpoint = mesKey
+        ? `/api/dashboard/kpis?mes=${mesKey}`
+        : '/api/dashboard/kpis';
+      const res = await apiFetch(endpoint);
       if (res.ok) {
         const data: DashboardKpis = await res.json();
         setKpis(data);

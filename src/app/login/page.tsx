@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/components/AuthContext';
 
+import { apiFetch } from '@/lib/apiFetch';
+
 export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('admin@coorsa.com');
@@ -10,15 +12,13 @@ export default function LoginPage() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setCargando(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/api/usuarios/login`, {
+      const res = await apiFetch('/api/usuarios/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

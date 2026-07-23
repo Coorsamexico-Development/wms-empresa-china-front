@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 
+import { apiFetch } from '@/lib/apiFetch';
+
 interface MaterialImportModalProps {
   onClose: () => void;
   onSuccess: () => void;
@@ -54,7 +56,7 @@ export default function MaterialImportModal({ onClose, onSuccess }: MaterialImpo
         return;
       }
 
-      const res = await fetch('http://localhost:4000/api/materiales/carga-masiva', {
+      const res = await apiFetch('/api/materiales/carga-masiva', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ materiales }),
