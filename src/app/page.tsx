@@ -35,20 +35,21 @@ export default function DashboardHome() {
   const [kpis, setKpis] = useState<DashboardKpis | null>(null);
   const [cargando, setCargando] = useState(true);
   const [mesSeleccionado, setMesSeleccionado] = useState<string>('');
+  const [periodo, setPeriodo] = useState<'dia' | 'semana' | 'mes'>('mes');
 
   const chartRef = useRef<HTMLDivElement>(null);
 
-  const cargarKpis = async (mesKey?: string) => {
+  const cargarKpis = async (mesKey?: string, pParam?: string) => {
     setCargando(true);
     try {
-      const endpoint = mesKey
-        ? `/api/dashboard/kpis?mes=${mesKey}`
-        : '/api/dashboard/kpis';
+      const p = pParam || periodo;
+      let endpoint = `/api/dashboard/kpis?periodo=${p}`;
+      if (mesKey) endpoint += `&mes=${mesKey}`;
       const res = await apiFetch(endpoint);
       if (res.ok) {
         const data: DashboardKpis = await res.json();
         setKpis(data);
-        if (!mesSeleccionado && data.historicoMensual && data.historicoMensual.length > 0) {
+        if (data.historicoMensual && data.historicoMensual.length > 0) {
           setMesSeleccionado(data.historicoMensual[data.historicoMensual.length - 1].mesKey);
         }
       }
@@ -57,6 +58,11 @@ export default function DashboardHome() {
     } finally {
       setCargando(false);
     }
+  };
+
+  const handleCambiarPeriodo = (nuevoPeriodo: 'dia' | 'semana' | 'mes') => {
+    setPeriodo(nuevoPeriodo);
+    cargarKpis(undefined, nuevoPeriodo);
   };
 
   useEffect(() => {
@@ -316,20 +322,51 @@ export default function DashboardHome() {
         )}
       </section>
 
-      {/* SECCIÓN 3: GRÁFICA INTERACTIVA AMCHARTS 5 */}
+      {/* SECCIÓN 3: GRÁFICA DE MOVIMIENTOS */}
       <section className="glass-panel p-6 rounded-3xl space-y-4 shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
           <div>
             <h3 className="text-base font-black text-white flex items-center gap-2">
-              <span>📊</span> Gráfica Interactiva de Movimientos (amCharts 5)
+              <span>📊</span> Gráfica de Movimientos
             </h3>
             <p className="text-xs text-slate-400">
-              Evolución comparativa de Entradas, Salidas y Ocupación acumulada en los últimos 6 meses.
+              Evolución comparativa de Entradas, Salidas y Ocupación acumulada en el período seleccionado.
             </p>
           </div>
-          <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full font-black border border-cyan-500/30">
-            Powered by amCharts 5
-          </span>
+
+          {/* Selector de Período: Día, Semana, Mes */}
+          <div className="flex items-center gap-1.5 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+            <button
+              onClick={() => handleCambiarPeriodo('dia')}
+              className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                periodo === 'dia'
+                  ? 'bg-cyan-500 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              📅 Día
+            </button>
+            <button
+              onClick={() => handleCambiarPeriodo('semana')}
+              className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                periodo === 'semana'
+                  ? 'bg-cyan-500 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              📆 Semana
+            </button>
+            <button
+              onClick={() => handleCambiarPeriodo('mes')}
+              className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                periodo === 'mes'
+                  ? 'bg-cyan-500 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              🗓️ Mes
+            </button>
+          </div>
         </div>
 
         {/* Contenedor Lienzo amCharts 5 */}

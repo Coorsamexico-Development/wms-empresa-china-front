@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch, getApiUrl } from '@/lib/apiFetch';
+import PhotoLightboxModal from '@/components/PhotoLightboxModal';
 
 interface Atributo {
   id: number;
@@ -66,6 +67,9 @@ export default function UnidadesPage() {
 
   // MODAL ETIQUETA
   const [modalEtiqueta, setModalEtiqueta] = useState<{ lpn: string; zpl: string; tarimaId: number } | null>(null);
+
+  // MODAL VISOR FOTOS DE UNIDAD DE VIAJE
+  const [modalFotosUnidad, setModalFotosUnidad] = useState<{ titulo: string; subtitulo: string; fotos: string[] } | null>(null);
 
   // Cargar Unidades, Atributos y Catálogo de Materiales
   const cargarUnidades = async () => {
@@ -415,7 +419,22 @@ export default function UnidadesPage() {
             ) : (
               unidades.map((uni) => (
                 <tr key={uni.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-mono font-extrabold text-cyan-400">Unidad #{uni.id}</td>
+                  <td className="p-3">
+                    <button
+                      onClick={() => {
+                        const fotos = uni.evidencias?.map((e) => e.urlArchivo).filter(Boolean) || [];
+                        const infoSub = uni.atributos?.map((a) => `${a.atributo?.nombre}: ${a.valor}`).join(' • ') || '';
+                        setModalFotosUnidad({
+                          titulo: `Viaje / Unidad de Transporte #${uni.id}`,
+                          subtitulo: infoSub,
+                          fotos,
+                        });
+                      }}
+                      className="bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-400 font-mono font-black text-xs px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span>📷</span> Unidad #{uni.id}
+                    </button>
+                  </td>
                   <td className="p-3 text-slate-300">{new Date(uni.fechaCreacion).toLocaleString()}</td>
                   <td className="p-3">
                     <span
@@ -890,6 +909,16 @@ export default function UnidadesPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* MODAL LIGHTBOX FOTOS DE LA UNIDAD */}
+      {modalFotosUnidad && (
+        <PhotoLightboxModal
+          titulo={modalFotosUnidad.titulo}
+          subtitulo={modalFotosUnidad.subtitulo}
+          fotos={modalFotosUnidad.fotos}
+          onClose={() => setModalFotosUnidad(null)}
+        />
       )}
     </main>
   );

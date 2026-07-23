@@ -31,22 +31,29 @@ export default function PhotoLightboxModal({ titulo, subtitulo, fotos, onClose }
 
         {/* Galería Fotográfica */}
         <div className="p-2 overflow-y-auto flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {fotos.map((fotoUrl, i) => (
-            <div
-              key={i}
-              className="aspect-video rounded-2xl overflow-hidden border border-slate-800 bg-black flex items-center justify-center relative group shadow-lg"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={fotoUrl}
-                alt={`Evidencia Foto #${i + 1}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
-              />
-              <span className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-md text-cyan-300 text-[10px] font-mono px-2.5 py-1 rounded-lg font-bold border border-white/10">
-                Fotografía #{i + 1}
-              </span>
+          {fotos.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-slate-500 text-xs flex flex-col items-center justify-center gap-2">
+              <span className="text-3xl">📷</span>
+              <span>No se encontraron fotografías registradas para esta unidad/viaje.</span>
             </div>
-          ))}
+          ) : (
+            fotos.map((fotoUrl, i) => (
+              <div
+                key={i}
+                className="aspect-video rounded-2xl overflow-hidden border border-slate-800 bg-black flex items-center justify-center relative group shadow-lg"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={fotoUrl}
+                  alt={`Evidencia Foto #${i + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                />
+                <span className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-md text-cyan-300 text-[10px] font-mono px-2.5 py-1 rounded-lg font-bold border border-white/10">
+                  Fotografía #{i + 1}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
